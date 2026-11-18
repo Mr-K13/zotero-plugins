@@ -23,21 +23,16 @@ The plugins work well together, but each one works without the other.
 
 ### Option 1: Install an .xpi file (recommended)
 
-1. Build the plugin files. In a terminal, from the root of this repository, run:
-
-   ```sh
-   ./build.sh
-   ```
-
-   This creates `dist/page-link.xpi` and `dist/link-article-to-book.xpi`.
-   It needs only `zip`, which macOS and Linux include.
-   On Windows, run it in Git Bash or WSL, or zip each plugin folder's contents by hand (see below).
+1. Download `page-link.xpi` and/or `link-article-to-book.xpi` from the [latest release](https://github.com/Mr-K13/zotero-plugins/releases/latest).
+   In Firefox, right-click the link and choose **Save Link As…**, because clicking it would try to install the file into Firefox.
 2. In Zotero, open **Tools → Plugins**.
 3. Click the gear icon, then **Install Plugin From File…**.
 4. Select the `.xpi` file, and repeat for the other plugin if you want both.
 5. Restart Zotero if it asks you to.
 
-To build an `.xpi` by hand, put these items from a plugin's folder into a zip file and rename it to end in `.xpi`:
+To build the `.xpi` files yourself, run `./build.sh` from the root of this repository.
+It writes them to `dist/` and needs only `zip`.
+Without `zip`, put these items from a plugin's folder into a zip file and rename it to end in `.xpi`:
 
 - `manifest.json`
 - the `.js` files
