@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "Link Article to Book",
+  "version": "1.1.0",
+  "description": "Finds the book with the same ISBN in your library, locates the page where the article's title appears, and attaches a page link to it.",
+  "author": "Mr-K13",
+  "applications": {
+    "zotero": {
+      "id": "link-article-to-book@zotero-plugins.local",
+      "update_url": "https://raw.githubusercontent.com/Mr-K13/zotero-plugins/main/updates.json",
+      "strict_min_version": "8.0",
+      "strict_max_version": "10.*"
+    }
+  }
+}

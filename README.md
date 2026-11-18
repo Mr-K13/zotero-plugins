@@ -1,0 +1,119 @@
+# Zotero Plugins
+
+Two small Zotero plugins for linking items to specific pages of PDFs in your library.
+
+| Plugin | What it does |
+|---|---|
+| [Page Link](zotero-page-link/) | Attach a link to item A that opens item B's PDF at a chosen page. You set it up from the item list or from inside the PDF reader. |
+| [Link Article to Book](zotero-link-article-to-book/) | For a chapter or paper with an ISBN, find the book with the same ISBN in your library, locate the page where the chapter's title appears in the book's PDF, and attach a page link to that page. |
+
+Both plugins create the same kind of link: a standard Zotero *linked URL* attachment like this one.
+
+```
+zotero://open-pdf/library/items/<PDF_KEY>?page=<N>
+```
+
+Zotero itself opens these links in its PDF reader at page N.
+So the links sync like any other attachment, and they keep working on computers without the plugins and after you uninstall them.
+The plugins work well together, but each one works without the other.
+
+**Requirements:** Zotero 8, 9 or 10 (tested on Zotero 10.0.9).
+
+## Installation
+
+### Option 1: Install an .xpi file (recommended)
+
+1. Build the plugin files. In a terminal, from the root of this repository, run:
+
+   ```sh
+   ./build.sh
+   ```
+
+   This creates `dist/page-link.xpi` and `dist/link-article-to-book.xpi`.
+   It needs only `zip`, which macOS and Linux include.
+   On Windows, run it in Git Bash or WSL, or zip each plugin folder's contents by hand (see below).
+2. In Zotero, open **Tools → Plugins**.
+3. Click the gear icon, then **Install Plugin From File…**.
+4. Select the `.xpi` file, and repeat for the other plugin if you want both.
+5. Restart Zotero if it asks you to.
+
+To build an `.xpi` by hand, put these items from a plugin's folder into a zip file and rename it to end in `.xpi`:
+
+- `manifest.json`
+- the `.js` files
+- the `locale` folder
+
+The files must sit at the top level of the zip file, not inside a folder.
+
+### Option 2: Run from source (for development)
+
+This makes Zotero load the plugin directly from this folder, so code changes need no rebuilding.
+
+1. Quit Zotero.
+2. Find your Zotero profile folder. See [Zotero's guide to the profile directory](https://www.zotero.org/support/kb/profile_directory).
+   - macOS: `~/Library/Application Support/Zotero/Profiles/<random>.default`
+   - Windows: `%APPDATA%\Zotero\Zotero\Profiles\<random>.default`
+   - Linux: `~/.zotero/zotero/<random>.default`
+3. In the profile's `extensions` folder, create the folder if it doesn't exist.
+   Then create a text file named after the plugin ID.
+   Its only content is the absolute path of the plugin folder in this repository.
+
+   | File name | Content (example) |
+   |---|---|
+   | `page-link@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-page-link` |
+   | `link-article-to-book@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-link-article-to-book` |
+
+4. Open `prefs.js` in the profile folder.
+   Delete the lines that contain `extensions.lastAppBuildId` and `extensions.lastAppVersion`.
+5. Start Zotero. Then open **Tools → Plugins** and **enable** the plugins.
+   Zotero disables plugins installed this way until you enable them.
+
+After you change the code, restart Zotero with the `-purgecaches` flag, or turn the plugin off and on again in **Tools → Plugins**.
+To see the plugins' debug messages, start Zotero with `-ZoteroDebugText`.
+On macOS, for example:
+
+```sh
+/Applications/Zotero.app/Contents/MacOS/zotero -purgecaches -ZoteroDebugText
+```
+
+The plugins log their messages with the prefixes `Page Link:` and `Link Article to Book:`.
+
+## Usage
+
+### Page Link
+
+- **From the item list:** right-click item A, then choose **Add Page Link to Another Article…**.
+  Pick item B, pick its PDF if it has more than one, then enter the page number.
+- **From the PDF reader:** open B's PDF, right-click the page, then choose **Link This Page from Another Article…**.
+  The current page is filled in for you. Then pick item A.
+- **Change the page:** right-click a page link, then choose **Change Linked Page…**.
+- **Open the link:** double-click the link attachment.
+  You can also double-click item A itself if A has no PDF or other file of its own.
+
+### Link Article to Book
+
+Select one or more chapters or papers that have an ISBN.
+Right-click them, then choose **Link to Page in Book (by ISBN)**.
+
+- The ISBN comes from the item's **ISBN** field, or from an `ISBN: …` line in **Extra**.
+  Journal articles have no ISBN field in Zotero.
+- ISBN-10 and ISBN-13 are treated as equal, and hyphens are ignored.
+  When several items share the ISBN, items of type *Book* are preferred.
+- The title is searched in this order, stopping at the first confident match:
+  1. Zotero's full-text index of the PDF, which is instant.
+  2. About 40 pages starting at the item's printed start page (from its **Pages** field).
+     This usually takes under half a second.
+  3. The whole PDF, as a last resort.
+- Matching pages are scored so that the chapter's opening page wins over the table of contents and running headers.
+- With one item selected, the plugin shows the page it found so you can correct it.
+  With several selected, it links them all and shows a summary.
+- If the item already has a link to that PDF, the plugin updates it instead of adding another.
+
+**Limits:**
+
+- The book's PDF needs a text layer, so a scanned PDF needs OCR first.
+- Page numbers are physical PDF pages (first page = 1), not the numbers printed on the pages.
+
+## License
+
+[MIT](LICENSE)

@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+  "name": "Page Link",
+  "version": "1.0.0",
+  "description": "Attach a link to a specific page of another item's PDF; double-click opens that PDF at that page.",
+  "author": "Mr-K13",
+  "applications": {
+    "zotero": {
+      "id": "page-link@zotero-plugins.local",
+      "update_url": "https://raw.githubusercontent.com/Mr-K13/zotero-plugins/main/updates.json",
+      "strict_min_version": "8.0",
+      "strict_max_version": "10.*"
+    }
+  }
+}
