@@ -109,6 +109,30 @@ Right-click them, then choose **Link to Page in Book (by ISBN)**.
 - The book's PDF needs a text layer, so a scanned PDF needs OCR first.
 - Page numbers are physical PDF pages (first page = 1), not the numbers printed on the pages.
 
+## Releasing a new version
+
+Zotero checks [`updates.json`](updates.json) on the `main` branch for plugin updates.
+Each plugin's `manifest.json` points to that file through its `update_url`.
+To publish an update:
+
+1. Raise `version` in the plugin's `manifest.json`.
+   Update `strict_max_version` too if you've tested a newer Zotero.
+2. Build the files and generate `updates.json` for the new tag:
+
+   ```sh
+   ./build.sh
+   ./make-updates-json.py v1.1.0
+   ```
+
+3. Create the release with the **same** `.xpi` files, because `updates.json` records their checksums:
+
+   ```sh
+   gh release create v1.1.0 dist/page-link.xpi dist/link-article-to-book.xpi
+   ```
+
+4. Commit and push `updates.json`.
+   Installed copies pick up the update the next time Zotero checks, or when a user chooses **Check for Updates** in **Tools → Plugins**.
+
 ## License
 
 [MIT](LICENSE)
