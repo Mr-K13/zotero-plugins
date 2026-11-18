@@ -109,6 +109,22 @@ Right-click them, then choose **Link to Page in Book (by ISBN)**.
 - The book's PDF needs a text layer, so a scanned PDF needs OCR first.
 - Page numbers are physical PDF pages (first page = 1), not the numbers printed on the pages.
 
+## Using the links on iPad and iPhone
+
+Plugins don't run in Zotero for iOS, but the page links sync there, and the app can open them at the right page.
+You need to change one setting:
+
+> **Settings → General → Open Links in External Browser**: turn **on**.
+
+With the setting off (the default), the app opens link attachments in its built-in browser.
+That browser can't handle `zotero://` links, so you get a blank web page instead of the PDF.
+With the setting on, iOS passes the link back to Zotero, which opens the PDF at the linked page.
+
+- Ordinary web links in Zotero then open in Safari instead of inside the app.
+- The linked PDF must be downloaded on the device.
+  If it isn't, Zotero shows the item instead.
+  Tap the PDF once to download it, then tap the page link again.
+
 ## Releasing a new version
 
 Zotero checks [`updates.json`](updates.json) on the `main` branch for plugin updates.

@@ -25,6 +25,10 @@ Links sync like any other attachment and keep working even if the plugin is unin
 
 Page numbers are physical PDF pages (first page = 1), not printed page labels.
 
+**iPad and iPhone:** the links sync to Zotero for iOS and open there at the linked page once you turn on **Settings → General → Open Links in External Browser**.
+Without that setting, the app opens them as a blank web page.
+See [Using the links on iPad and iPhone](../README.md#using-the-links-on-ipad-and-iphone).
+
 ## Development install
 
 1. Quit Zotero.
