@@ -1,13 +1,14 @@
 # Zotero Plugins
 
-Two small Zotero plugins for linking items to specific pages of PDFs in your library.
+Small Zotero plugins for linking items to specific pages of PDFs in your library, and for working with attachment files.
 
 | Plugin | What it does |
 |---|---|
 | [Page Link](zotero-page-link/) | Attach a link to item A that opens item B's PDF at a chosen page. You set it up from the item list or from inside the PDF reader. |
 | [Link Article to Book](zotero-link-article-to-book/) | For a chapter or paper with an ISBN, find the book with the same ISBN in your library, locate the page where the chapter's title appears in the book's PDF, and attach a page link to that page. |
+| [Copy Path](zotero-copy-path/) | Right-click a file attachment, such as a PDF, and choose **Copy Path** to copy the full path of its file to the clipboard. |
 
-Both plugins create the same kind of link: a standard Zotero *linked URL* attachment like this one.
+Page Link and Link Article to Book create the same kind of link: a standard Zotero *linked URL* attachment like this one.
 
 ```
 zotero://open-pdf/library/items/<PDF_KEY>?page=<N>
@@ -23,11 +24,11 @@ The plugins work well together, but each one works without the other.
 
 ### Option 1: Install an .xpi file (recommended)
 
-1. Download `page-link.xpi` and/or `link-article-to-book.xpi` from the [latest release](https://github.com/Mr-K13/zotero-plugins/releases/latest).
+1. Download the `.xpi` file of each plugin you want (`page-link.xpi`, `link-article-to-book.xpi`, `copy-path.xpi`) from the [latest release](https://github.com/Mr-K13/zotero-plugins/releases/latest).
    In Firefox, right-click the link and choose **Save Link As…**, because clicking it would try to install the file into Firefox.
 2. In Zotero, open **Tools → Plugins**.
 3. Click the gear icon, then **Install Plugin From File…**.
-4. Select the `.xpi` file, and repeat for the other plugin if you want both.
+4. Select the `.xpi` file, and repeat for each other plugin you want.
 5. Restart Zotero if it asks you to.
 
 To build the `.xpi` files yourself, run `./build.sh` from the root of this repository.
@@ -57,6 +58,7 @@ This makes Zotero load the plugin directly from this folder, so code changes nee
    |---|---|
    | `page-link@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-page-link` |
    | `link-article-to-book@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-link-article-to-book` |
+   | `copy-path@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-copy-path` |
 
 4. Open `prefs.js` in the profile folder.
    Delete the lines that contain `extensions.lastAppBuildId` and `extensions.lastAppVersion`.
@@ -71,7 +73,7 @@ On macOS, for example:
 /Applications/Zotero.app/Contents/MacOS/zotero -purgecaches -ZoteroDebugText
 ```
 
-The plugins log their messages with the prefixes `Page Link:` and `Link Article to Book:`.
+The plugins log their messages with the prefixes `Page Link:`, `Link Article to Book:` and `Copy Path:`.
 
 ## Usage
 
@@ -109,6 +111,12 @@ Right-click them, then choose **Link to Page in Book (by ISBN)**.
 - The book's PDF needs a text layer, so a scanned PDF needs OCR first.
 - Page numbers are physical PDF pages (first page = 1), not the numbers printed on the pages.
 
+### Copy Path
+
+Right-click a file attachment, such as a PDF, then choose **Copy Path**.
+The full path of the file is copied to the clipboard.
+With several attachments selected, choose **Copy Paths** to copy them one per line.
+
 ## Using the links on iPad and iPhone
 
 Plugins don't run in Zotero for iOS, but the page links sync there, and the app can open them at the right page.
@@ -143,7 +151,7 @@ To publish an update:
 3. Create the release with the **same** `.xpi` files, because `updates.json` records their checksums:
 
    ```sh
-   gh release create v1.1.0 dist/page-link.xpi dist/link-article-to-book.xpi
+   gh release create v1.1.0 dist/page-link.xpi dist/link-article-to-book.xpi dist/copy-path.xpi
    ```
 
 4. Commit and push `updates.json`.
