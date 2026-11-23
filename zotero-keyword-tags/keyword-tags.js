@@ -7,9 +7,11 @@
  *
  *  - Keyword tags: enter tags separated by commas. Each tag is added to every
  *    item whose Title or Abstract contains the tag text, ignoring case.
- *  - Rank tags (optional): add "Rank:Q1"–"Rank:Q4" from the journal's SCImago
- *    best quartile, or "Rank:NA" when the journal has no quartile or isn't
- *    listed. Items that already have a "Rank:" tag are skipped. See journal-rank.js.
+ *  - Rank tags (optional): add "SJR:Q1"–"SJR:Q4" from the journal's SCImago
+ *    (SJR) best quartile, or "SJR:NA" when the journal has no quartile or
+ *    isn't listed. If some items already have an "SJR:" tag, you choose whether
+ *    to keep them or to recheck them and replace the tag when the rank differs.
+ *    See journal-rank.js.
  *
  * Existing tags are never removed or duplicated (compared ignoring case).
  *
@@ -24,7 +26,7 @@ KeywordTags = {
   menuIDs: [],
 
   TITLE: "Add Keyword and Rank Tags",
-  RANK_PREFIX: "Rank:",
+  RANK_PREFIX: "SJR:",
   PREF_LAST_TAGS: "extensions.keyword-tags.lastTags",
   PREF_ADD_RANK: "extensions.keyword-tags.addRank",
 
@@ -119,6 +121,16 @@ KeywordTags = {
     if (!options) return;
     let { tags, addRank } = options;
 
+    // Ask what to do with items that already have a rank tag
+    let recheck = false;
+    if (addRank) {
+      let ranked = items.filter(item => this.rankTags(item).length).length;
+      if (ranked) {
+        recheck = this.promptRecheck(window, ranked, items.length);
+        if (recheck === null) return;
+      }
+    }
+
     let progress = new Zotero.ProgressWindow({ closeOnClick: false });
     progress.changeHeadline(this.TITLE);
     let line = new progress.ItemProgress(null, `Checking ${items.length} item(s)…`);
@@ -128,7 +140,9 @@ KeywordTags = {
     let changed = 0;
     let keywordCounts = new Map(tags.map(tag => [tag, 0])); // tag -> items it was added to
     let rankCounts = new Map(); // "Q1"… -> items
-    let alreadyRanked = 0;
+    let alreadyRanked = 0; // kept without rechecking
+    let unchangedRanks = 0; // rechecked, same rank
+    let replacedRanks = []; // rechecked, rank changed
     let unranked = []; // items without a rank, with the reason
     let failures = [];
     try {
@@ -149,22 +163,37 @@ KeywordTags = {
           let newTags = this.tagsToAdd(item, tags);
 
           let rank = "";
+          let oldRankTags = addRank ? this.rankTags(item) : [];
           if (addRank) {
-            if (this.hasRankTag(item)) {
+            if (oldRankTags.length && !recheck) {
               alreadyRanked++;
             }
             else {
               let result = await JournalRank.rankItem(item);
               rank = result.rank;
-              if (!rank) unranked.push(`${title}: ${result.message}`);
+              // A failed lookup leaves any existing rank tag alone
+              if (!rank) unranked.push(`${title}: ${result.message}`
+                + (oldRankTags.length ? ` (kept ${oldRankTags.join(", ")})` : ""));
               this.log(`${item.libraryKey}: rank ${rank || "none"}`
                 + (result.journal ? ` (${result.journal})` : "") + (result.message ? ` — ${result.message}` : ""));
             }
           }
 
+          let newRankTag = rank && this.RANK_PREFIX + rank;
+          if (rank && oldRankTags.length == 1 && oldRankTags[0].toLowerCase() == newRankTag.toLowerCase()) {
+            unchangedRanks++;
+            rank = "";
+          }
+          else if (rank && oldRankTags.length) {
+            replacedRanks.push(`${title}: ${oldRankTags.join(", ")} → ${newRankTag}`);
+          }
+
           if (!newTags.length && !rank) continue;
           for (let tag of newTags) item.addTag(tag);
-          if (rank) item.addTag(this.RANK_PREFIX + rank);
+          if (rank) {
+            for (let tag of oldRankTags) item.removeTag(tag);
+            item.addTag(newRankTag);
+          }
           await item.saveTx();
           changed++;
           for (let tag of newTags) keywordCounts.set(tag, keywordCounts.get(tag) + 1);
@@ -184,10 +213,14 @@ KeywordTags = {
 
     Services.prompt.alert(window, this.TITLE, this.summary({
       items, scope, changed, keywordCounts, addRank, rankData, rankCounts, alreadyRanked, unranked, failures,
+      recheck, unchangedRanks, replacedRanks,
     }));
   },
 
-  summary({ items, scope, changed, keywordCounts, addRank, rankData, rankCounts, alreadyRanked, unranked, failures }) {
+  summary({
+    items, scope, changed, keywordCounts, addRank, rankData, rankCounts, alreadyRanked, unranked, failures,
+    recheck, unchangedRanks, replacedRanks,
+  }) {
     let list = (lines, max = 10) => lines.slice(0, max).map(l => `• ${l}`).join("\n")
       + (lines.length > max ? `\n• … and ${lines.length - max} more (see Help → Debug Output Logging)` : "");
 
@@ -197,8 +230,13 @@ KeywordTags = {
     }
     if (addRank) {
       let ranks = ["Q1", "Q2", "Q3", "Q4", "NA"].map(r => `${this.RANK_PREFIX}${r}: ${rankCounts.get(r) || 0} item(s)`);
-      msg += `\n\nRank tags (SCImago ${rankData.year}):\n` + list(ranks);
-      if (alreadyRanked) msg += `\n• Already had a Rank tag: ${alreadyRanked} item(s)`;
+      msg += `\n\nRank tags added (SCImago ${rankData.year}):\n` + list(ranks);
+      if (alreadyRanked) msg += `\n• Kept existing SJR tag: ${alreadyRanked} item(s)`;
+      if (recheck) {
+        msg += `\n• Rechecked, rank unchanged: ${unchangedRanks} item(s)`;
+        msg += `\n• Rechecked, rank replaced: ${replacedRanks.length} item(s)`;
+        if (replacedRanks.length) msg += `\n\nReplaced ranks:\n` + list(replacedRanks);
+      }
       if (unranked.length) msg += `\n\nNo rank found (${unranked.length}):\n` + list(unranked);
     }
     if (failures.length) {
@@ -230,7 +268,7 @@ KeywordTags = {
     let text = `Tags to add to the ${count} item(s) in ${scope}, separated by commas.\n`
       + "Each tag is added only to items whose Title or Abstract contains it (ignoring case).\n"
       + "Leave empty to add only rank tags.";
-    let check = "Also add journal rank tags (Rank:Q1–Q4, or Rank:NA) from SCImago";
+    let check = "Also add journal rank tags (SJR:Q1–Q4, or SJR:NA) from SCImago";
     while (true) {
       if (!Services.prompt.prompt(window, this.TITLE, text, input, check, addRank)) return null;
       let tags = this.parseTags(input.value);
@@ -265,9 +303,28 @@ KeywordTags = {
     return tags.filter(tag => searchable.includes(tag.toLowerCase()) && !existing.has(tag.toLowerCase()));
   },
 
-  hasRankTag(item) {
+  /** The item's tags that start with "SJR:" (ignoring case). */
+  rankTags(item) {
     let prefix = this.RANK_PREFIX.toLowerCase();
-    return item.getTags().some(t => t.tag.trim().toLowerCase().startsWith(prefix));
+    return item.getTags().map(t => t.tag).filter(tag => tag.trim().toLowerCase().startsWith(prefix));
+  },
+
+  /**
+   * Ask whether to keep or recheck existing rank tags.
+   * Returns false (keep), true (recheck and replace), or null if cancelled.
+   */
+  promptRecheck(window, ranked, total) {
+    let ps = Services.prompt;
+    let flags = ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_0
+      + ps.BUTTON_TITLE_CANCEL * ps.BUTTON_POS_1
+      + ps.BUTTON_TITLE_IS_STRING * ps.BUTTON_POS_2
+      + ps.BUTTON_POS_0_DEFAULT;
+    let text = `${ranked} of the ${total} item(s) already have an SJR tag.\n\n`
+      + "• Keep Existing: rank only the items without an SJR tag.\n"
+      + "• Recheck All: look up every item again and replace its SJR tag when the rank differs. "
+      + "If an item's lookup fails, its SJR tag is kept.";
+    let button = ps.confirmEx(window, this.TITLE, text, flags, "Keep Existing", null, "Recheck All", null, {});
+    return button == 0 ? false : button == 2 ? true : null;
   },
 
   shorten(s, n) {

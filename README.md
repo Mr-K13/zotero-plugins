@@ -7,7 +7,7 @@ Small Zotero plugins for linking items to specific pages of PDFs in your library
 | [Page Link](zotero-page-link/) | Attach a link to item A that opens item B's PDF at a chosen page. You set it up from the item list or from inside the PDF reader. |
 | [Link Article to Book](zotero-link-article-to-book/) | For a chapter or paper with an ISBN, find the book with the same ISBN in your library, locate the page where the chapter's title appears in the book's PDF, and attach a page link to that page. |
 | [Copy Path](zotero-copy-path/) | Right-click a file attachment, such as a PDF, and choose **Copy Path** to copy the full path of its file to the clipboard. |
-| [Keyword Tags](zotero-keyword-tags/) | Right-click a collection, choose **Add Keyword and Rank Tags…** and enter tags separated by commas. Each tag is added to the items whose title or abstract contains it. Optionally, each item also gets its journal's SCImago quartile as a tag, such as `Rank:Q1`. |
+| [Keyword Tags](zotero-keyword-tags/) | Right-click a collection, choose **Add Keyword and Rank Tags…** and enter tags separated by commas. Each tag is added to the items whose title or abstract contains it. Optionally, each item also gets its journal's SCImago quartile as a tag, such as `SJR:Q1`. |
 
 Page Link and Link Article to Book create the same kind of link: a standard Zotero *linked URL* attachment like this one.
 
@@ -124,7 +124,8 @@ With several attachments selected, choose **Copy Paths** to copy them one per li
 Right-click a collection, then choose **Add Keyword and Rank Tags…**.
 Enter tags separated by commas, such as `Digital Twin, BIM, IoT`.
 Each tag is added to every item in the collection whose Title or Abstract contains it, ignoring case.
-With **Also add journal rank tags** ticked, each item also gets `Rank:Q1` to `Rank:Q4` from its journal's SCImago best quartile, or `Rank:NA`.
+With **Also add journal rank tags** ticked, each item also gets `SJR:Q1` to `SJR:Q4` from its journal's SCImago best quartile, or `SJR:NA`.
+Items that already have an `SJR:` tag are kept as they are, or rechecked and updated if you choose **Recheck All**.
 Existing tags are kept. See the [plugin's README](zotero-keyword-tags/) for details.
 
 ## Using the links on iPad and iPhone

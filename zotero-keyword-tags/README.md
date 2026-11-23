@@ -24,13 +24,19 @@ Each item gets one tag from the [SCImago Journal Rank](https://www.scimagojr.com
 
 | Tag | Meaning |
 |---|---|
-| `Rank:Q1` … `Rank:Q4` | The journal's best quartile across its subject categories |
-| `Rank:NA` | The journal isn't in SCImago, or has no quartile that year |
+| `SJR:Q1` … `SJR:Q4` | The journal's best quartile across its subject categories |
+| `SJR:NA` | The journal isn't in SCImago, or has no quartile that year |
 
 The quartile belongs to the journal, not to the paper itself.
 
-- Items that already have a tag starting with `Rank:` are skipped.
-  To re-rank an item, delete its `Rank:` tag first.
+- If some items already have a tag starting with `SJR:`, a second dialog asks what to do with them:
+  - **Keep Existing** ranks only the items that have no `SJR:` tag.
+  - **Recheck All** looks up every item again and replaces its `SJR:` tag when the rank has changed, for example after a new SCImago edition.
+    If an item's lookup fails, its existing tag is kept.
+  The summary lists the ranks that changed.
+- Version 1.x of this plugin used the prefix `Rank:` instead of `SJR:`.
+  The plugin ignores old `Rank:` tags.
+  To convert them, rename each one in Zotero's tag selector: right-click `Rank:Q1`, choose **Rename Tag…**, and enter `SJR:Q1`.
 - The journal is found from the item's **ISSN** and **Publication** fields first, without going online.
   If that fails and the item has a DOI (in **DOI**, **URL** or **Extra**), the journal title and ISSNs are looked up on Crossref.
   DOAJ and then Semantic Scholar are tried for DOIs that Crossref doesn't know.
