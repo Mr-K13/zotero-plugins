@@ -12,7 +12,7 @@ import pathlib
 import sys
 
 REPO = "Mr-K13/zotero-plugins"
-PLUGINS = ["zotero-page-link", "zotero-link-article-to-book", "zotero-copy-path"]
+PLUGINS = ["zotero-page-link", "zotero-link-article-to-book", "zotero-copy-path", "zotero-keyword-tags"]
 root = pathlib.Path(__file__).resolve().parent
 
 if len(sys.argv) != 2:
