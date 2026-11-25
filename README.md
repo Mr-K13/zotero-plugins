@@ -1,6 +1,6 @@
 # Zotero Plugins
 
-Small Zotero plugins for linking items to specific pages of PDFs in your library, copying file paths, and tagging items by keyword and journal rank.
+Small Zotero plugins for linking items to specific pages of PDFs in your library, copying file paths, tagging items by keyword and journal rank, and exporting a collection to CSV.
 
 | Plugin | What it does |
 |---|---|
@@ -8,6 +8,7 @@ Small Zotero plugins for linking items to specific pages of PDFs in your library
 | [Link Article to Book](zotero-link-article-to-book/) | For a chapter or paper with an ISBN, find the book with the same ISBN in your library, locate the page where the chapter's title appears in the book's PDF, and attach a page link to that page. |
 | [Copy Path](zotero-copy-path/) | Right-click a file attachment, such as a PDF, and choose **Copy Path** to copy the full path of its file to the clipboard. |
 | [Keyword Tags](zotero-keyword-tags/) | Right-click a collection, choose **Add Keyword and Rank Tags…** and enter tags separated by commas. Each tag is added to the items whose title or abstract contains it. Optionally, each item also gets its journal's SCImago quartile as a tag, such as `SJR:Q1`. |
+| [Export CSV](zotero-export-csv/) | Right-click a collection, choose **Export Items to CSV…** and optionally enter tags to filter by. The CSV file lists each item's PDF path, item type, title, DOI, year and publication. |
 
 Page Link and Link Article to Book create the same kind of link: a standard Zotero *linked URL* attachment like this one.
 
@@ -25,7 +26,7 @@ The plugins work well together, but each one works without the other.
 
 ### Option 1: Install an .xpi file (recommended)
 
-1. Download the `.xpi` file of each plugin you want (`page-link.xpi`, `link-article-to-book.xpi`, `copy-path.xpi`, `keyword-tags.xpi`) from the [latest release](https://github.com/Mr-K13/zotero-plugins/releases/latest).
+1. Download the `.xpi` file of each plugin you want (`page-link.xpi`, `link-article-to-book.xpi`, `copy-path.xpi`, `keyword-tags.xpi`, `export-csv.xpi`) from the [latest release](https://github.com/Mr-K13/zotero-plugins/releases/latest).
    In Firefox, right-click the link and choose **Save Link As…**, because clicking it would try to install the file into Firefox.
 2. In Zotero, open **Tools → Plugins**.
 3. Click the gear icon, then **Install Plugin From File…**.
@@ -61,6 +62,7 @@ This makes Zotero load the plugin directly from this folder, so code changes nee
    | `link-article-to-book@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-link-article-to-book` |
    | `copy-path@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-copy-path` |
    | `keyword-tags@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-keyword-tags` |
+   | `export-csv@zotero-plugins.local` | `/path/to/zotero-plugins/zotero-export-csv` |
 
 4. Open `prefs.js` in the profile folder.
    Delete the lines that contain `extensions.lastAppBuildId` and `extensions.lastAppVersion`.
@@ -75,7 +77,7 @@ On macOS, for example:
 /Applications/Zotero.app/Contents/MacOS/zotero -purgecaches -ZoteroDebugText
 ```
 
-The plugins log their messages with the prefixes `Page Link:`, `Link Article to Book:`, `Copy Path:` and `Keyword Tags:`.
+The plugins log their messages with the prefixes `Page Link:`, `Link Article to Book:`, `Copy Path:`, `Keyword Tags:` and `Export CSV:`.
 
 ## Usage
 
@@ -128,6 +130,15 @@ With **Also add journal rank tags** ticked, each item also gets `SJR:Q1` to `SJR
 Items that already have an `SJR:` tag are kept as they are, or rechecked and updated if you choose **Recheck All**.
 Existing tags are kept. See the [plugin's README](zotero-keyword-tags/) for details.
 
+### Export CSV
+
+Right-click a collection, then choose **Export Items to CSV…**.
+Enter tags separated by commas to export only the items with any of them, or leave the box empty to export every item.
+Tick **Items must have all of the tags** to require every tag.
+Then choose where to save the file.
+Each row has the item's PDF path, item type, title, DOI, year and publication.
+See the [plugin's README](zotero-export-csv/) for details.
+
 ## Using the links on iPad and iPhone
 
 Plugins don't run in Zotero for iOS, but the page links sync there, and the app can open them at the right page.
@@ -162,7 +173,7 @@ To publish an update:
 3. Create the release with the **same** `.xpi` files, because `updates.json` records their checksums:
 
    ```sh
-   gh release create v1.1.0 dist/page-link.xpi dist/link-article-to-book.xpi dist/copy-path.xpi dist/keyword-tags.xpi
+   gh release create v1.1.0 dist/page-link.xpi dist/link-article-to-book.xpi dist/copy-path.xpi dist/keyword-tags.xpi dist/export-csv.xpi
    ```
 
 4. Commit and push `updates.json`.
